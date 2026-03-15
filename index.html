@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Safety & Accuracy Prototype</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<h1>AI Safety & Accuracy System</h1>
+
+<div class="box">
+  <h2>Identity Verification & AI Safety</h2>
+  <video id="video" width="300" height="200" autoplay></video><br>
+  <button onclick="captureFace()">Capture Face</button>
+  <canvas id="canvas" width="300" height="200"></canvas>
+  <p id="deviceInfo"></p>
+  <textarea id="behaviorInput" placeholder="Type something for behavior analysis..."></textarea>
+  <p id="behaviorResult"></p>
+</div>
+
+<div class="box">
+  <h2>AI Accuracy Testing</h2>
+  <p>Input sample value for AI prediction:</p>
+  <input type="number" id="sampleInput" placeholder="Enter value">
+  <button onclick="predict()">Predict</button>
+  <p id="prediction"></p>
+  <p id="accuracy"></p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
