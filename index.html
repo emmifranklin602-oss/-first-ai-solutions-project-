@@ -2,20 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cloud AI App</title>
+  <title>Cloud AI App - Big Version</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      padding: 40px;
+      background-color: #f5f6fa;
+      color: #333;
+    }
+
+    h1, h2 {
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .section {
+      background-color: #fff;
+      padding: 30px;
+      margin: 30px auto;
+      width: 90%;
+      max-width: 700px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    input[type="number"], input[type="file"] {
+      width: 100%;
+      padding: 15px;
+      font-size: 20px;
+      margin: 15px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      font-size: 22px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: none;
+      background-color: #0077cc;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    #output {
+      margin-top: 25px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      color: #1e272e;
+    }
+
+    .timestamp {
+      margin-top: 5px;
+      font-size: 16px;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
-  <!-- AI Prediction -->
-  <input type="number" id="numInput" placeholder="Enter number">
-  <button onclick="runPrediction()">Predict</button>
 
-  <br><br>
+  <h1>Cloud AI App</h1>
 
-  <!-- Face Verification -->
-  <input type="file" id="selfie" accept="image/*">
-  <button onclick="verifyFace()">Verify Face</button>
+  <!-- AI Prediction Section -->
+  <div class="section">
+    <h2>AI Prediction</h2>
+    <input type="number" id="numInput" placeholder="Enter a number">
+    <button onclick="runPrediction()">Predict</button>
+    <div id="predictionOutput" class="output"></div>
+    <div id="predictionTime" class="timestamp"></div>
+  </div>
 
-  <!-- Link to JS -->
+  <!-- Face Verification Section -->
+  <div class="section">
+    <h2>Face Verification</h2>
+    <input type="file" id="selfie" accept="image/*">
+    <button onclick="verifyFace()">Verify Face</button>
+    <div id="faceOutput" class="output"></div>
+    <div id="faceTime" class="timestamp"></div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
