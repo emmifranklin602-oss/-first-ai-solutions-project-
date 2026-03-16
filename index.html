@@ -1,32 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>AI Safety & Accuracy Prototype</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <meta charset="UTF-8">
+  <title>Cloud AI App</title>
 </head>
 <body>
-<h1>AI Safety & Accuracy System</h1>
+  <!-- AI Prediction -->
+  <input type="number" id="numInput" placeholder="Enter number">
+  <button onclick="runPrediction()">Predict</button>
 
-<div class="box">
-  <h2>Identity Verification & AI Safety</h2>
-  <video id="video" width="300" height="200" autoplay></video><br>
-  <button onclick="captureFace()">Capture Face</button>
-  <canvas id="canvas" width="300" height="200"></canvas>
-  <p id="deviceInfo"></p>
-  <textarea id="behaviorInput" placeholder="Type something for behavior analysis..."></textarea>
-  <p id="behaviorResult"></p>
-</div>
+  <br><br>
 
-<div class="box">
-  <h2>AI Accuracy Prediction</h2>
-  <input type="number" id="sampleInput" placeholder="Enter value">
-  <button onclick="predict()">Predict</button>
-  <p id="prediction"></p>
-  <p id="accuracy"></p>
-</div>
+  <!-- Face Verification -->
+  <input type="file" id="selfie" accept="image/*">
+  <button onclick="verifyFace()">Verify Face</button>
 
-<script src="app.js"></script>
+  <!-- Link to JS -->
+  <script src="app.js"></script>
 </body>
 </html>
