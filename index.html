@@ -1,94 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Cloud AI App - Big Version</title>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      padding: 40px;
-      background-color: #f5f6fa;
-      color: #333;
-    }
-
-    h1, h2 {
-      text-align: center;
-      font-weight: bold;
-    }
-
-    .section {
-      background-color: #fff;
-      padding: 30px;
-      margin: 30px auto;
-      width: 90%;
-      max-width: 700px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-
-    input[type="number"], input[type="file"] {
-      width: 100%;
-      padding: 15px;
-      font-size: 20px;
-      margin: 15px 0;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      width: 100%;
-      padding: 15px;
-      font-size: 22px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: none;
-      background-color: #0077cc;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background-color: #005fa3;
-    }
-
-    #output {
-      margin-top: 25px;
-      font-size: 24px;
-      font-weight: bold;
-      text-align: center;
-      color: #1e272e;
-    }
-
-    .timestamp {
-      margin-top: 5px;
-      font-size: 16px;
-      color: #555;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Face Verification</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f0f2f5; color: #333; padding: 20px; }
+  h1 { text-align: center; }
+  .tab { margin: 20px 0; }
+  #videoElement { border: 2px solid #444; width: 100%; max-width: 640px; height: auto; }
+  #canvasOverlay { position: absolute; top: 0; left: 0; }
+  button { font-size: 1.2em; padding: 10px 20px; margin-top: 10px; }
+  #faceOutput, #faceTime { font-size: 1.2em; margin-top: 10px; }
+  #uploadSection { margin-top: 40px; }
+</style>
 </head>
 <body>
 
-  <h1>Cloud AI App</h1>
+<h1>AI Face Verification App</h1>
 
-  <!-- AI Prediction Section -->
-  <div class="section">
-    <h2>AI Prediction</h2>
-    <input type="number" id="numInput" placeholder="Enter a number">
-    <button onclick="runPrediction()">Predict</button>
-    <div id="predictionOutput" class="output"></div>
-    <div id="predictionTime" class="timestamp"></div>
-  </div>
+<!-- Live Camera Section -->
+<div class="tab" id="liveCameraTab">
+  <h2>Live Camera Face Detection</h2>
+  <video id="videoElement" autoplay muted></video>
+  <canvas id="canvasOverlay"></canvas>
+  <p>Status: <span id="statusDot">🟡</span></p>
+</div>
 
-  <!-- Face Verification Section -->
-  <div class="section">
-    <h2>Face Verification</h2>
-    <input type="file" id="selfie" accept="image/*">
-    <button onclick="verifyFace()">Verify Face</button>
-    <div id="faceOutput" class="output"></div>
-    <div id="faceTime" class="timestamp"></div>
-  </div>
+<!-- Upload Selfie Section -->
+<div id="uploadSection">
+  <h2>Upload Selfie for Verification</h2>
+  <input type="file" id="selfie" accept="image/*">
+  <button onclick="verifyFace()">Verify</button>
+  <p id="faceOutput">Verified: N/A</p>
+  <p id="faceTime">Last verified: N/A</p>
+</div>
 
-  <script src="app.js"></script>
+<!-- Face API JS -->
+<script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
+<script>
+  // -------------- Live Camera Setup ----------------
+  const video = document.getElementById('videoElement');
+  const canvas = document.getElementById('canvasOverlay');
+  const context = canvas.getContext('2d');
+  const statusDot = document.getElementById('statusDot');
+
+  async function setupCamera() {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+    video.srcObject = stream;
+  }
+
+  async function loadModels() {
+    await faceapi.nets.tinyFaceDetector.loadFromUri('https://justadummyurl.com/models/');
+    await faceapi.nets.faceExpressionNet.loadFromUri('https://justadummyurl.com/models/');
+    startDetection();
+  }
+
+  function startDetection() {
+    video.addEventListener('play', () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const detect = async () => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+        if(detections.length > 0) statusDot.textContent = '🟢';
+        else statusDot.textContent = '🟡';
+
+        detections.forEach(det => {
+          const { x, y, width, height } = det.detection.box;
+          context.strokeStyle = '#00FF00';
+          context.lineWidth = 2;
+          context.strokeRect(x, y, width, height);
+
+          // Show top expression
+          const topExpression = Object.entries(det.expressions).sort((a,b) => b[1]-a[1])[0];
+          context.fillStyle = "#00FF00";
+          context.font = "16px Arial";
+          context.fillText(`${topExpression[0]} ${(topExpression[1]*100).toFixed(0)}%`, x, y-5);
+        });
+
+        requestAnimationFrame(detect);
+      };
+      detect();
+    });
+  }
+
+  setupCamera().then(loadModels);
+
+  // -------------- Upload Selfie ----------------
+  const BACKEND = "https://7273f1c8-e032-40b0-b63c-639c80f4c2ed-00-338fuw19q86zl.riker.dev/api/py";
+
+  async function verifyFace() {
+    const file = document.getElementById("selfie").files[0];
+    if(!file) return alert("Please select a selfie first.");
+    const form = new FormData();
+    form.append("file", file);
+    try {
+      const res = await fetch(`${BACKEND}/verify-face`, { method: "POST", body: form });
+      const data = await res.json();
+      document.getElementById("faceOutput").textContent =
+        `Verified: ${data.verified} — Confidence: ${(data.confidence*100).toFixed(0)}%`;
+      document.getElementById("faceTime").textContent = "Last verified: " + new Date().toLocaleString();
+    } catch(err) {
+      console.error(err);
+      document.getElementById("faceOutput").textContent = "Error connecting to backend";
+    }
+  }
+</script>
+
 </body>
 </html>
