@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>AI Safety & Accuracy Prototype</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 </head>
-
 <body>
 <h1>AI Safety & Accuracy System</h1>
 
@@ -20,8 +20,7 @@
 </div>
 
 <div class="box">
-  <h2>AI Accuracy Testing</h2>
-  <p>Input sample value for AI prediction:</p>
+  <h2>AI Accuracy Prediction</h2>
   <input type="number" id="sampleInput" placeholder="Enter value">
   <button onclick="predict()">Predict</button>
   <p id="prediction"></p>
