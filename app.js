@@ -1,63 +1,65 @@
-// ----- Camera / Face Verification -----
-const video = document.getElementById("video");
-navigator.mediaDevices.getUserMedia({video:true})
-.then(stream => video.srcObject = stream);
+// ----------------------
+// GitHub Pages Frontend JS
+// ----------------------
 
-function captureFace(){
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(video,0,0,300,200);
-  alert("Face captured for verification!");
+// Replace with your Replit backend URL
+const BASE_URL = "https://your-replit-url.replit.dev"; // <-- UPDATE THIS
+
+// ----------------------
+// AI Prediction Function
+// ----------------------
+async function runPrediction() {
+    try {
+        const input = parseFloat(document.getElementById("numInput").value);
+
+        if (isNaN(input)) {
+            alert("Please enter a valid number");
+            return;
+        }
+
+        const response = await fetch(`${BASE_URL}/predict`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ input: input })
+        });
+
+        const data = await response.json();
+        alert("Prediction from cloud: " + data.prediction);
+    } catch (error) {
+        console.error("Prediction error:", error);
+        alert("Error connecting to backend. Check Replit URL or server status.");
+    }
 }
 
-// ----- Device Fingerprint -----
-function getDevice(){
-  const info = navigator.userAgent;
-  document.getElementById("deviceInfo").innerText = "Device Info: " + info;
-}
-getDevice();
+// ----------------------
+// Face Verification Function
+// ----------------------
+async function verifyFace() {
+    try {
+        const fileInput = document.getElementById("selfie");
+        const file = fileInput.files[0];
 
-// ----- Behavior Monitoring -----
-const behaviorInput = document.getElementById("behaviorInput");
-behaviorInput.addEventListener("keyup",()=>{
-  const length = behaviorInput.value.length;
-  const result = (length>50) ? "Normal typing detected" : "Low activity detected";
-  document.getElementById("behaviorResult").innerText = "Behavior Analysis: " + result;
-});
+        if (!file) {
+            alert("Please upload a selfie first");
+            return;
+        }
 
-// ----- TensorFlow.js AI Prediction -----
-let inputs = [10,20,30,40,50,60,70,80,90,100];
-let outputs = [12,21,29,41,52,61,72,79,88,102]; // Simulated "real" results
-let history = [];
+        const formData = new FormData();
+        formData.append("file", file);
 
-// Convert arrays to tensors
-const xs = tf.tensor2d(inputs, [inputs.length, 1]);
-const ys = tf.tensor2d(outputs, [outputs.length, 1]);
+        const response = await fetch(`${BASE_URL}/verify-face`, {
+            method: "POST",
+            body: formData
+        });
 
-// Create model
-const model = tf.sequential();
-model.add(tf.layers.dense({units:1, inputShape:[1]}));
-model.compile({loss:'meanSquaredError', optimizer:'sgd'});
-
-// Train model
-async function trainModel(){
-  await model.fit(xs, ys, {epochs:200});
-  console.log("Model trained!");
-}
-trainModel();
-
-// Predict function
-async function predict(){
-  const input = parseInt(document.getElementById("sampleInput").value);
-  const prediction = model.predict(tf.tensor2d([input], [1,1]));
-  const predVal = await prediction.data();
-  document.getElementById("prediction").innerText = "Predicted Value: " + predVal[0].toFixed(2);
-
-  // Track accuracy (simulate)
-  const error = Math.abs(predVal[0] - input);
-  history.push({input, predicted: predVal[0], error});
-
-  let correct = history.filter(h=>h.error<=10).length;
-  let acc = ((correct/history.length)*100).toFixed(2) + "%";
-  document.getElementById("accuracy").innerText = "AI Prediction Accuracy: " + acc;
+        const data = await response.json();
+        if (data.error) {
+            alert("Error verifying face: " + data.error);
+        } else {
+            alert(`Verified: ${data.verified}, Confidence: ${data.confidence}`);
+        }
+    } catch (error) {
+        console.error("Face verification error:", error);
+        alert("Error connecting to backend. Check Replit URL or server status.");
+    }
 }
